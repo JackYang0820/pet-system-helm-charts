@@ -1,0 +1,11 @@
+# busybox-service.yaml  
+apiVersion: v1
+kind: Service
+metadata:
+  name: health-svc
+spec:
+  selector:
+    app: health-pod
+  ports:
+  - port: 80
+    targetPort: 8080

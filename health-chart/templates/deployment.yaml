@@ -1,0 +1,44 @@
+# deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: health-deploy
+  labels:
+    app: health-dpm
+# 所有这些修改都只需要重新apply：
+spec:
+  selector:
+    matchLabels:
+      app: health-pod
+  replicas: 1                    # ✓ 副本数
+  template:
+    metadata:
+      labels:
+        app: health-pod
+    spec:
+      containers:
+      - name: httpd
+        image: busybox:1.36.1
+        command:
+        - "sh"
+        - "-c"
+        - |
+          # 创建目录和文件
+          mkdir -p /www
+          mkdir -p /www/health
+          echo 'HTTP/1.1 200 OK' > /www/health/index.html
+          echo 'Content-Type: text/plain' >> /www/health/index.html
+          echo '' >> /www/health/index.html
+          echo 'Healthy' >> /www/health/index.html
+          
+          # 启动 httpd（-f 前台运行）
+          echo "Starting httpd on port 8080"
+          exec httpd -f -p 8080 -h /www
+        ports:
+        - containerPort: 8080
+        # 添加就绪探针
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 5

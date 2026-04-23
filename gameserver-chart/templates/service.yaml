@@ -1,0 +1,14 @@
+# pe-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: gs
+  name: gs-is
+spec:
+  type: ClusterIP
+  selector:
+    app: gs-pod  # 选择器：匹配Pod的标签
+  ports:
+  - port: 8002        # Service端口
+    targetPort: 8002  # Pod内容器端口

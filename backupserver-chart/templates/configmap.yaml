@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bs-config
+data:
+  config.conf: |
+    [Database]
+    host = 10.0.0.59
+    user = admin
+    database = user_data
+    pool_size = 10
+
+    [SQS]
+    queue_url = https://sqs.ap-northeast-2.amazonaws.com/810648236112/PetDateUpdateQueue.fifo
+    region = ap-northeast-2

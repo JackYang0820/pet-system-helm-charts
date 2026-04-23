@@ -1,0 +1,14 @@
+# us-svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: us
+  name: us-is
+spec:
+  type: ClusterIP
+  selector:
+    app: us-pod  # 选择器：匹配Pod的标签
+  ports:
+  - port: 8000        # Service端口
+    targetPort: 8000  # Pod内容器端口

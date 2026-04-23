@@ -1,0 +1,57 @@
+# deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bs-deploy
+  labels:
+    app: bs-dpm
+# 所有这些修改都只需要重新apply：
+spec:
+  selector:
+    matchLabels:
+      app: bs-pod
+  replicas: 1                    # ✓ 副本数
+  template:
+    metadata:
+      labels:
+        app: bs-pod
+    spec:
+      imagePullSecrets:           # ← 添加这行
+      - name: ecr-secret          # ← 添加这行
+      containers:
+      - name: bs
+        image: backup-server:latest      # ✓ 镜像版本
+        imagePullPolicy: IfNotPresent  # 关键！
+        # resources:               # ✓ 资源限制
+        #   limits:
+        #     memory: "256Mi"
+        # env:                     # ✓ 环境变量
+        # - name: DEBUG
+        #   value: "true"
+        
+        # 挂载配置文件
+        volumeMounts:
+        - name: bs-config-volume
+          mountPath: /app/config/config.conf      # 明确文件路径
+          subPath: config.conf  # 根据你的实际目录修改
+          readOnly: true
+        # 挂载secret
+        - name: bs-config-secret-volume
+          mountPath: /app/config/config-secret.conf  # 作为单独文件
+          subPath: config-secret.conf 
+          readOnly: true
+      volumes:
+      - name: bs-config-volume
+        configMap:
+          name: bs-config
+          items:
+          - key: config.conf
+            path: config.conf
+      - name: bs-config-secret-volume
+        secret:
+          secretName: bs-config-secret
+          optional: false
+          defaultMode: 0400  # 只读权限
+          items:
+          - key: config-secret.conf
+            path: config-secret.conf
